@@ -1,72 +1,62 @@
-// Nama File: login.cy.js
-
-describe('Otomatisasi Login OrangeHRM', () => { 
+describe('OrangeHRM Login Feature Test', () => { 
     
-    // SETUP: Kunjungi halaman login sebelum setiap tes
     beforeEach(() => {
         cy.visit('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
     });
 
-    // ===========================================
-    // 1. TEST CASE POSITIF
-    // ===========================================
-
-    it('TC-001: Login Berhasil dengan Kredensial Valid (Admin/admin123)', () => {
-        cy.get('input[name="username"]').type('Admin');
-        cy.get('input[name="password"]').type('admin123');
+    it('TC-001: Should allow user to login with valid credentials', () => {
+        cy.get(':nth-child(2) > .oxd-input-group > :nth-child(2) > .oxd-input').type('Admin');
+        cy.get(':nth-child(3) > .oxd-input-group > :nth-child(2) > .oxd-input').type('admin123');
         cy.get('button[type="submit"]').click();
-        cy.url().should('include', '/web/index.php/dashboard/index');
+
+        cy.url().should('include', '/dashboard');
         cy.contains('Dashboard').should('be.visible');
     });
 
-    it('TC-007: Mengakses tautan "Forgot your password?"', () => {
-        cy.get('.orangehrm-login-forgot > .oxd-text').click();
-        cy.url().should('include', '/requestPasswordReset');
-        cy.contains('Reset Password').should('be.visible');
-    });
-
-
-    // ===========================================
-    // 2. TEST CASE NEGATIF
-    // ===========================================
-
-    it('TC-002: Login Gagal dengan Password Invalid', () => {
-        cy.get('input[name="username"]').type('Admin');
-        cy.get('input[name="password"]').type('salah123');
+    it('TC-002: Should display error for invalid password', () => {
+        cy.get(':nth-child(2) > .oxd-input-group > :nth-child(2) > .oxd-input').type('Admin');
+        cy.get(':nth-child(3) > .oxd-input-group > :nth-child(2) > .oxd-input').type('salah_total');
         cy.get('button[type="submit"]').click();
+
         cy.get('.oxd-alert-content-text').should('be.visible').and('contain', 'Invalid credentials');
     });
 
-    it('TC-003: Login Gagal dengan Username Invalid', () => {
-        cy.get('input[name="username"]').type('userlain');
-        cy.get('input[name="password"]').type('admin123');
+    it('TC-003: Should display error for invalid username', () => {
+        cy.get(':nth-child(2) > .oxd-input-group > :nth-child(2) > .oxd-input').type('user_salah');
+        cy.get(':nth-child(3) > .oxd-input-group > :nth-child(2) > .oxd-input').type('admin123');
         cy.get('button[type="submit"]').click();
         cy.get('.oxd-alert-content-text').should('be.visible').and('contain', 'Invalid credentials');
     });
 
     it('TC-004: Login Gagal, Username & Password Invalid', () => {
-        cy.get('input[name="username"]').type('usernametidakada');
-        cy.get('input[name="password"]').type('passwordpalsu');
+        cy.get(':nth-child(2) > .oxd-input-group > :nth-child(2) > .oxd-input').type('usernametidakada');
+        cy.get(':nth-child(3) > .oxd-input-group > :nth-child(2) > .oxd-input').type('passwordpalsu');
         cy.get('button[type="submit"]').click();
         cy.get('.oxd-alert-content-text').should('be.visible').and('contain', 'Invalid credentials');
     });
-    
-    it('TC-005: Login Gagal, Username Kosong (Validasi Required)', () => {
-        cy.get('input[name="password"]').type('admin123');
-        cy.get('button[type="submit"]').click();
 
+    it('TC-005: Should show "Required" message when username is empty', () => {
+        cy.get(':nth-child(3) > .oxd-input-group > :nth-child(2) > .oxd-input').type('admin123');
+        cy.get('button[type="submit"]').click();
         
         cy.get(':nth-child(2) > .oxd-input-group > .oxd-input-field-bottom-space > .oxd-text') 
             .should('be.visible')
             .and('contain', 'Required');
     });
 
-    it('TC-006: Login Gagal, Password Kosong (Validasi Required)', () => {
-        cy.get('input[name="username"]').type('Admin');
+    it('TC-006: Should show "Required" message when password is empty', () => {
+        cy.get(':nth-child(2) > .oxd-input-group > :nth-child(2) > .oxd-input').type('Admin');
         cy.get('button[type="submit"]').click();
 
         cy.get(':nth-child(3) > .oxd-input-group > .oxd-input-field-bottom-space > .oxd-text')
             .should('be.visible')
             .and('contain', 'Required');
+    });
+
+    it('TC-007: Should navigate to the Forgot Password page successfully', () => {
+        cy.contains('Forgot your password?').click();
+
+        cy.url().should('include', '/requestPasswordReset');
+        cy.contains('Reset Password').should('be.visible');
     });
 });
